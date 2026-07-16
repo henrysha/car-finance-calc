@@ -1,0 +1,262 @@
+/* ============================================
+   Car Acquisition Calculator — Layout
+   ============================================ */
+
+/* —— App Shell ———————————————————————— */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* —— Header ——————————————————————————— */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+  padding: 0 var(--sp-8);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-bottom: 1px solid var(--glass-border);
+  transition: background-color var(--transition-theme),
+              border-color var(--transition-theme);
+}
+
+.header__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header__title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-tight);
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-400) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header__subtitle {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+/* —— Two-Panel Layout ————————————————— */
+.main-layout {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - var(--header-height));
+}
+
+/* —— Inputs Panel (Left) ————————————— */
+.inputs-panel {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  max-width: var(--sidebar-width);
+  height: calc(100vh - var(--header-height));
+  overflow-y: auto;
+  padding: var(--sp-6);
+  border-right: 1px solid var(--border-subtle);
+  background-color: var(--bg-deep);
+  transition: background-color var(--transition-theme),
+              border-color var(--transition-theme);
+}
+
+/* —— Results Panel (Right) ———————————— */
+.results-panel {
+  flex: 1;
+  height: calc(100vh - var(--header-height));
+  overflow-y: auto;
+  padding: var(--sp-8);
+  background-color: var(--bg-deepest);
+  transition: background-color var(--transition-theme);
+}
+
+.results-panel__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* —— Section Spacing —————————————————— */
+.input-section {
+  margin-bottom: var(--sp-6);
+}
+
+.input-section:last-child {
+  margin-bottom: 0;
+}
+
+.results-section {
+  margin-bottom: var(--sp-10);
+}
+
+.results-section:last-child {
+  margin-bottom: 0;
+}
+
+/* —— Summary Cards Grid ——————————————— */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-5);
+}
+
+/* —— Charts Grid ————————————————————— */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-6);
+}
+
+.charts-grid .chart-card--full {
+  grid-column: 1 / -1;
+}
+
+/* —— Footer ——————————————————————————— */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-6) var(--sp-8);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--bg-deep);
+  transition: background-color var(--transition-theme),
+              border-color var(--transition-theme);
+}
+
+.footer__disclaimer {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  max-width: 480px;
+}
+
+.footer__actions {
+  display: flex;
+  gap: var(--sp-3);
+}
+
+/* ============================================
+   Responsive: Tablet (< 1024px)
+   ============================================ */
+@media (max-width: 1023px) {
+  .main-layout {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .inputs-panel {
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
+    height: auto;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+    padding: var(--sp-5);
+  }
+
+  .results-panel {
+    height: auto;
+    padding: var(--sp-6);
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .header {
+    padding: 0 var(--sp-5);
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: var(--sp-4);
+    text-align: center;
+    padding: var(--sp-5);
+  }
+}
+
+/* ============================================
+   Responsive: Mobile (< 640px)
+   ============================================ */
+@media (max-width: 639px) {
+  :root {
+    --header-height: 60px;
+  }
+
+  .header {
+    padding: 0 var(--sp-4);
+  }
+
+  .header__title {
+    font-size: var(--fs-base);
+  }
+
+  .header__subtitle {
+    display: none;
+  }
+
+  .inputs-panel {
+    padding: var(--sp-4);
+  }
+
+  .results-panel {
+    padding: var(--sp-4);
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-4);
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-4);
+  }
+
+  .footer {
+    padding: var(--sp-4);
+  }
+}
+
+/* —— Print Layout ————————————————————— */
+@media print {
+  .header,
+  .inputs-panel,
+  .footer__actions {
+    display: none;
+  }
+
+  .main-layout {
+    display: block;
+    height: auto;
+  }
+
+  .results-panel {
+    height: auto;
+    overflow: visible;
+    padding: 0;
+    background: #fff;
+    color: #000;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

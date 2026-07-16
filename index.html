@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Acquisition Calculator — Cash vs Finance vs Lease</title>
+  <meta name="description" content="A premium 3x2 matrix calculator to compare buying a car with Cash, Finance, or Lease for both Gasoline and Hybrid models, factoring in depreciation, opportunity cost, and fuel savings.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Car Acquisition Calculator">
+  <meta property="og:description" content="Compare Cash vs Finance vs Lease × Gasoline vs Hybrid in real-time.">
+  <meta property="og:type" content="website">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/charts.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header__brand">
+        <h1 class="header__title">Car Acquisition Calculator</h1>
+        <div class="header__subtitle">Compare Cash vs Finance vs Lease × Gasoline vs Hybrid</div>
+      </div>
+      <div class="header__actions">
+        <button id="theme-toggle" class="btn-secondary" aria-label="Toggle dark/light mode" style="padding: 0 var(--sp-3); width: 40px; height: 40px;">
+          <span id="theme-toggle-icon">☀️</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+      <!-- Inputs Panel (Left) -->
+      <aside id="inputs-panel" class="inputs-panel">
+        
+        <!-- Preset Buttons -->
+        <section class="input-section">
+          <div class="input-group">
+            <div class="input-group__header">
+              <h2 class="input-group__title">Preset Scenarios</h2>
+            </div>
+            <div class="preset-grid">
+              <button id="preset-economy" class="btn-preset">Economy Sedan</button>
+              <button id="preset-suv" class="btn-preset">Mid-Range SUV</button>
+              <button id="preset-luxury" class="btn-preset">Luxury Vehicle</button>
+              <button id="preset-used" class="btn-preset">Used Sedan</button>
+              <button id="preset-highmileage" class="btn-preset" style="grid-column: 1 / -1;">High Mileage Driver</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Vehicle Info -->
+        <section class="input-section">
+          <div class="card input-group">
+            <div class="input-group__header">
+              <h2 class="input-group__title">Vehicle Info</h2>
+            </div>
+            
+            <!-- Condition Toggle -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <span class="form-field__label">Condition</span>
+              </div>
+              <div class="segmented-control">
+                <div class="segmented-control__option">
+                  <input type="radio" id="cond-new" name="vehicle-condition" value="new" class="segmented-control__input" checked>
+                  <label for="cond-new" class="segmented-control__label">New</label>
+                </div>
+                <div class="segmented-control__option">
+                  <input type="radio" id="cond-used" name="vehicle-condition" value="used" class="segmented-control__input">
+                  <label for="cond-used" class="segmented-control__label">Used</label>
+                </div>
+                <div class="segmented-control__bg"></div>
+              </div>
+            </div>
+
+            <!-- Price (Gasoline) -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-price-gas" class="form-field__label">Gasoline Vehicle Price</label>
+                <span class="tooltip-trigger" data-tooltip="The purchase price of the standard gasoline model before taxes and fees.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-price-gas" class="input-text" value="35000" min="0" step="500">
+              </div>
+            </div>
+
+            <!-- Price (Hybrid) -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-price-hybrid" class="form-field__label">Hybrid Vehicle Price</label>
+                <span class="tooltip-trigger" data-tooltip="The purchase price of the hybrid model. Auto-calculated as gasoline price + premium, but fully editable.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-price-hybrid" class="input-text" value="38500" min="0" step="500">
+              </div>
+              <small id="hybrid-premium-label" style="color: var(--hybrid-text); font-weight: 500;">+$3,500 hybrid premium</small>
+            </div>
+
+            <!-- Used Specific Fields (Conditional) -->
+            <div id="used-specs-container" style="display: none; flex-direction: column; gap: var(--sp-4);">
+              <div class="form-field">
+                <div class="form-field__label-container">
+                  <label for="input-used-age" class="form-field__label">Vehicle Age (Years)</label>
+                  <span class="tooltip-trigger" data-tooltip="How old the vehicle is in years. Used to enter the depreciation curve at the correct point.">ⓘ</span>
+                </div>
+                <div class="form-field__control">
+                  <input type="number" id="input-used-age" class="input-text" value="3" min="0" max="20" step="1">
+                </div>
+              </div>
+              <div class="form-field">
+                <div class="form-field__label-container">
+                  <label for="input-used-mileage" class="form-field__label">Current Mileage</label>
+                  <span class="tooltip-trigger" data-tooltip="Current mileage on the odometer. Represents past usage and affects overall value retention.">ⓘ</span>
+                </div>
+                <div class="form-field__control">
+                  <input type="number" id="input-used-mileage" class="input-text" value="36000" min="0" step="1000">
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Fuel & Driving -->
+        <section class="input-section">
+          <div class="card input-group">
+            <div class="input-group__header" style="border-left-color: var(--hybrid-500);">
+              <h2 class="input-group__title">Fuel & Driving</h2>
+            </div>
+
+            <!-- Annual Miles -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-annual-miles" class="form-field__label">Annual Mileage</label>
+                <span class="tooltip-trigger" data-tooltip="The estimated number of miles you expect to drive each year. Crucial for lease limits and fuel savings.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--suffix">
+                <input type="number" id="input-annual-miles" class="input-text" value="12000" min="0" step="1000">
+                <span class="form-field__adornment" style="font-size: var(--fs-xs);">mi/yr</span>
+              </div>
+            </div>
+
+            <!-- Gas Price -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-gas-price" class="form-field__label">Gas Price (per gallon)</label>
+                <span class="tooltip-trigger" data-tooltip="The current price of fuel per gallon in your area. Used to calculate yearly fuel savings.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-gas-price" class="input-text" value="3.50" min="0" step="0.05">
+              </div>
+            </div>
+
+            <!-- Gas MPG -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-mpg-gas" class="form-field__label">Gasoline MPG (Combined)</label>
+                <span class="tooltip-trigger" data-tooltip="Average miles per gallon (combined city/highway) for the gasoline vehicle.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--suffix">
+                <input type="number" id="input-mpg-gas" class="input-text" value="28" min="1" step="1">
+                <span class="form-field__adornment" style="font-size: var(--fs-xs);">mpg</span>
+              </div>
+              <small style="color: var(--text-muted);">Est. fuel cost: <span id="preview-fuel-cost-gas" class="number-display" style="font-weight: 600;">$1,500</span>/yr</small>
+            </div>
+
+            <!-- Hybrid MPG -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-mpg-hybrid" class="form-field__label">Hybrid MPG (Combined)</label>
+                <span class="tooltip-trigger" data-tooltip="Average miles per gallon (combined city/highway) for the hybrid vehicle.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--suffix">
+                <input type="number" id="input-mpg-hybrid" class="input-text" value="45" min="1" step="1">
+                <span class="form-field__adornment" style="font-size: var(--fs-xs);">mpg</span>
+              </div>
+              <small style="color: var(--hybrid-text); font-weight: 500;">Est. fuel cost: <span id="preview-fuel-cost-hybrid" class="number-display" style="font-weight: 600;">$933</span>/yr</small>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Common Financial -->
+        <section class="input-section">
+          <div class="card input-group">
+            <div class="input-group__header">
+              <h2 class="input-group__title">Common Financials</h2>
+            </div>
+
+            <!-- Down Payment -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-down-payment" class="form-field__label">Down Payment</label>
+                <span class="tooltip-trigger" data-tooltip="Cash paid upfront. Applies to Finance and Lease options (reduces monthly payments).">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-down-payment" class="input-text" value="5000" min="0" step="500">
+              </div>
+            </div>
+
+            <!-- Trade-in Value -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-trade-in" class="form-field__label">Trade-In Value</label>
+                <span class="tooltip-trigger" data-tooltip="The value of your current car traded in, which acts as credit toward the purchase or lease.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-trade-in" class="input-text" value="0" min="0" step="500">
+              </div>
+            </div>
+
+            <!-- Tax Rate -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-tax-rate" class="form-field__label">Sales Tax Rate</label>
+                <span class="tooltip-trigger" data-tooltip="State/local sales tax rate. Applied to the purchase price (and lease payments depending on state laws).">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--suffix">
+                <input type="number" id="input-tax-rate" class="input-text" value="7.0" min="0" max="30" step="0.1">
+                <span class="form-field__adornment">%</span>
+              </div>
+            </div>
+
+            <!-- Registration & Fees -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-fees" class="form-field__label">Registration & Dealer Fees</label>
+                <span class="tooltip-trigger" data-tooltip="Upfront fees for vehicle title, registration, and documentation.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-fees" class="input-text" value="500" min="0" step="50">
+              </div>
+            </div>
+
+            <!-- Annual Insurance -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-insurance" class="form-field__label">Annual Insurance Cost</label>
+                <span class="tooltip-trigger" data-tooltip="Expected insurance cost per year. Tends to be higher for financed or leased vehicles due to required coverage.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-insurance" class="input-text" value="1500" min="0" step="100">
+              </div>
+            </div>
+
+            <!-- Opportunity Cost Rate -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-opportunity-rate" class="form-field__label">Opportunity Cost Rate (ROI)</label>
+                <span class="tooltip-trigger" data-tooltip="The expected annual rate of return if your cash was invested instead of tied up in a vehicle (e.g. S&P 500 average is ~7%).">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--suffix">
+                <input type="number" id="input-opportunity-rate" class="input-text" value="7.0" min="0" max="30" step="0.5">
+                <span class="form-field__adornment">%</span>
+              </div>
+            </div>
+
+            <!-- Comparison Period Slider -->
+            <div class="slider-container">
+              <div class="slider-header">
+                <span class="form-field__label">Comparison Period</span>
+                <span id="slider-period-val" class="slider-value">5 years</span>
+              </div>
+              <input type="range" id="input-period-years" class="slider-custom" min="1" max="10" value="5" step="1">
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Finance Section -->
+        <section class="input-section">
+          <div class="card input-group">
+            <div class="input-group__header" style="border-left-color: var(--finance-500);">
+              <h2 class="input-group__title">Finance Options</h2>
+            </div>
+
+            <!-- Loan Term -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="select-loan-term" class="form-field__label">Loan Term</label>
+                <span class="tooltip-trigger" data-tooltip="Length of the car loan in months.">ⓘ</span>
+              </div>
+              <div class="select-wrapper">
+                <select id="select-loan-term" class="select-custom">
+                  <option value="24">24 months (2 yrs)</option>
+                  <option value="36">36 months (3 yrs)</option>
+                  <option value="48">48 months (4 yrs)</option>
+                  <option value="60" selected>60 months (5 yrs)</option>
+                  <option value="72">72 months (6 yrs)</option>
+                  <option value="84">84 months (7 yrs)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- APR -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-apr" class="form-field__label">Interest Rate (APR)</label>
+                <span class="tooltip-trigger" data-tooltip="Annual Percentage Rate for the loan. Tends to be slightly higher for used vehicles.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--suffix">
+                <input type="number" id="input-apr" class="input-text" value="6.5" min="0" max="30" step="0.1">
+                <span class="form-field__adornment">%</span>
+              </div>
+            </div>
+
+            <!-- Extra Monthly Payment -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-extra-payment" class="form-field__label">Extra Monthly Payment</label>
+                <span class="tooltip-trigger" data-tooltip="Optional extra principal payment to pay off the loan faster.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-extra-payment" class="input-text" value="0" min="0" step="50">
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Lease Section -->
+        <section class="input-section">
+          <div class="card input-group">
+            <div class="input-group__header" style="border-left-color: var(--lease-500);">
+              <h2 class="input-group__title">Lease Options</h2>
+            </div>
+
+            <!-- Lease Term -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="select-lease-term" class="form-field__label">Lease Term</label>
+                <span class="tooltip-trigger" data-tooltip="Length of the lease contract in months. Typically 36 months.">ⓘ</span>
+              </div>
+              <div class="select-wrapper">
+                <select id="select-lease-term" class="select-custom">
+                  <option value="24">24 months (2 yrs)</option>
+                  <option value="36" selected>36 months (3 yrs)</option>
+                  <option value="39">39 months (3.25 yrs)</option>
+                  <option value="48">48 months (4 yrs)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Monthly Payment (Gasoline Lease) -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-lease-pay-gas" class="form-field__label">Gasoline Monthly Payment</label>
+                <span class="tooltip-trigger" data-tooltip="Quoted monthly lease payment for the gasoline model, pre-tax.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-lease-pay-gas" class="input-text" value="400" min="0" step="10">
+              </div>
+            </div>
+
+            <!-- Monthly Payment (Hybrid Lease) -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-lease-pay-hybrid" class="form-field__label">Hybrid Monthly Payment</label>
+                <span class="tooltip-trigger" data-tooltip="Quoted monthly lease payment for the hybrid model. Typically higher due to the premium.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-lease-pay-hybrid" class="input-text" value="440" min="0" step="10">
+              </div>
+            </div>
+
+            <!-- Residual Value % -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-residual" class="form-field__label">Residual Value</label>
+                <span class="tooltip-trigger" data-tooltip="The vehicle's estimated value at the end of the lease, expressed as a percentage of original MSRP. Higher is better (reduces monthly cost).">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--suffix">
+                <input type="number" id="input-residual" class="input-text" value="55.0" min="0" max="100" step="0.5">
+                <span class="form-field__adornment">%</span>
+              </div>
+            </div>
+
+            <!-- Money Factor -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-money-factor" class="form-field__label">Money Factor</label>
+                <span class="tooltip-trigger" data-tooltip="The interest rate on a lease. Multiply by 2,400 to get equivalent APR (e.g. 0.0027 * 2400 = 6.48% APR).">ⓘ</span>
+              </div>
+              <div class="form-field__control">
+                <input type="number" id="input-money-factor" class="input-text" value="0.0027" min="0" max="0.01" step="0.0001">
+              </div>
+            </div>
+
+            <!-- Mileage Allowance -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-lease-miles-allowed" class="form-field__label">Mileage Allowance</label>
+                <span class="tooltip-trigger" data-tooltip="Annual mileage limit in lease contract (standard is 10k, 12k, or 15k).">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--suffix">
+                <input type="number" id="input-lease-miles-allowed" class="input-text" value="12000" min="0" step="1000">
+                <span class="form-field__adornment" style="font-size: var(--fs-xs);">mi/yr</span>
+              </div>
+            </div>
+
+            <!-- Excess Mileage Rate -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-lease-excess-rate" class="form-field__label">Excess Mileage Charge</label>
+                <span class="tooltip-trigger" data-tooltip="Per-mile fee charged at lease end for exceeding the cumulative mileage limit.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-lease-excess-rate" class="input-text" value="0.25" min="0" max="2" step="0.05">
+              </div>
+            </div>
+
+            <!-- Acquisition Fee -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-lease-acq-fee" class="form-field__label">Acquisition Fee</label>
+                <span class="tooltip-trigger" data-tooltip="Administrative fee charged by the leasing bank to set up the contract.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-lease-acq-fee" class="input-text" value="895" min="0" step="50">
+              </div>
+            </div>
+
+            <!-- Disposition Fee -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-lease-disp-fee" class="form-field__label">Disposition Fee</label>
+                <span class="tooltip-trigger" data-tooltip="Fee paid at lease return to cover detailing, shipping, and handling.">ⓘ</span>
+              </div>
+              <div class="form-field__control form-field__control--prefix">
+                <span class="form-field__adornment">$</span>
+                <input type="number" id="input-lease-disp-fee" class="input-text" value="350" min="0" step="50">
+              </div>
+            </div>
+
+            <!-- Purchase at Lease End -->
+            <div class="form-field">
+              <div class="form-field__label-container">
+                <label for="input-lease-buyout" class="form-field__label">Purchase at Lease End?</label>
+                <span class="tooltip-trigger" data-tooltip="Toggle if you plan to buy the vehicle at the residual price when the lease terminates.">ⓘ</span>
+              </div>
+              <div class="segmented-control">
+                <div class="segmented-control__option">
+                  <input type="radio" id="lease-buyout-no" name="lease-buyout" value="no" class="segmented-control__input" checked>
+                  <label for="lease-buyout-no" class="segmented-control__label">No (Return)</label>
+                </div>
+                <div class="segmented-control__option">
+                  <input type="radio" id="lease-buyout-yes" name="lease-buyout" value="yes" class="segmented-control__input">
+                  <label for="lease-buyout-yes" class="segmented-control__label">Yes (Buy)</label>
+                </div>
+                <div class="segmented-control__bg"></div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Advanced Inputs (Collapsible) -->
+        <section class="input-section">
+          <div id="collapsible-advanced" class="collapsible">
+            <button class="collapsible__trigger" id="collapsible-advanced-trigger" aria-expanded="false" aria-controls="collapsible-advanced-content">
+              <span>Advanced Details</span>
+              <span class="collapsible__icon">▼</span>
+            </button>
+            <div id="collapsible-advanced-content" class="collapsible__content" role="region" aria-labelledby="collapsible-advanced-trigger">
+              <div class="collapsible__content-inner">
+                
+                <!-- Annual Maintenance (Gas) -->
+                <div class="form-field">
+                  <div class="form-field__label-container">
+                    <label for="input-maint-gas" class="form-field__label">Maintenance — Gasoline</label>
+                    <span class="tooltip-trigger" data-tooltip="Expected annual maintenance/repair costs for the gasoline model.">ⓘ</span>
+                  </div>
+                  <div class="form-field__control form-field__control--prefix">
+                    <span class="form-field__adornment">$</span>
+                    <input type="number" id="input-maint-gas" class="input-text" value="500" min="0" step="50">
+                  </div>
+                </div>
+
+                <!-- Annual Maintenance (Hybrid) -->
+                <div class="form-field">
+                  <div class="form-field__label-container">
+                    <label for="input-maint-hybrid" class="form-field__label">Maintenance — Hybrid</label>
+                    <span class="tooltip-trigger" data-tooltip="Expected maintenance for the hybrid. Hybrids have lower brake wear due to regenerative braking, but complex engines.">ⓘ</span>
+                  </div>
+                  <div class="form-field__control form-field__control--prefix">
+                    <span class="form-field__adornment">$</span>
+                    <input type="number" id="input-maint-hybrid" class="input-text" value="400" min="0" step="50">
+                  </div>
+                </div>
+
+                <!-- Hybrid Battery Premium Risk -->
+                <div class="form-field">
+                  <div class="form-field__label-container">
+                    <label for="input-battery-cost" class="form-field__label">Hybrid Battery Out-of-Warranty Cost</label>
+                    <span class="tooltip-trigger" data-tooltip="Estimated cost of battery replacement if it fails after warranty period.">ⓘ</span>
+                  </div>
+                  <div class="form-field__control form-field__control--prefix">
+                    <span class="form-field__adornment">$</span>
+                    <input type="number" id="input-battery-cost" class="input-text" value="3500" min="0" step="500">
+                  </div>
+                </div>
+
+                <!-- Battery Warranty -->
+                <div class="form-field">
+                  <div class="form-field__label-container">
+                    <label for="input-battery-warranty" class="form-field__label">Battery Warranty (Years)</label>
+                    <span class="tooltip-trigger" data-tooltip="Manufacturer battery warranty length. Tends to be 8-10 years.">ⓘ</span>
+                  </div>
+                  <div class="form-field__control">
+                    <input type="number" id="input-battery-warranty" class="input-text" value="8" min="0" step="1">
+                  </div>
+                </div>
+
+                <!-- Hybrid Resale Adjustment -->
+                <div class="form-field">
+                  <div class="form-field__label-container">
+                    <label for="input-hybrid-depr-adj" class="form-field__label">Hybrid Depreciation Adj.</label>
+                    <span class="tooltip-trigger" data-tooltip="How much better hybrid value retention is compared to gasoline per year. (e.g. +2% means less depreciation).">ⓘ</span>
+                  </div>
+                  <div class="form-field__control form-field__control--suffix">
+                    <input type="number" id="input-hybrid-depr-adj" class="input-text" value="2.0" min="-10" max="10" step="0.5">
+                    <span class="form-field__adornment">%</span>
+                  </div>
+                </div>
+
+                <!-- Hybrid Tax Incentive -->
+                <div class="form-field">
+                  <div class="form-field__label-container">
+                    <label for="input-hybrid-tax-incentive" class="form-field__label">Hybrid Tax Rebate/Credit</label>
+                    <span class="tooltip-trigger" data-tooltip="State, local, or utility incentives for purchasing a hybrid model.">ⓘ</span>
+                  </div>
+                  <div class="form-field__control form-field__control--prefix">
+                    <span class="form-field__adornment">$</span>
+                    <input type="number" id="input-hybrid-tax-incentive" class="input-text" value="0" min="0" step="100">
+                  </div>
+                </div>
+
+                <!-- Hybrid Insurance Premium -->
+                <div class="form-field">
+                  <div class="form-field__label-container">
+                    <label for="input-hybrid-insurance-premium" class="form-field__label">Hybrid Insurance Premium</label>
+                    <span class="tooltip-trigger" data-tooltip="Estimated % difference in insurance costs for the hybrid variant compared to gasoline.">ⓘ</span>
+                  </div>
+                  <div class="form-field__control form-field__control--suffix">
+                    <input type="number" id="input-hybrid-insurance-premium" class="input-text" value="5.0" min="-20" max="30" step="0.5">
+                    <span class="form-field__adornment">%</span>
+                  </div>
+                </div>
+
+                <!-- Gap Insurance -->
+                <div class="form-field">
+                  <div class="form-field__label-container">
+                    <label for="input-gap-insurance" class="form-field__label">Gap Insurance Cost (Finance)</label>
+                    <span class="tooltip-trigger" data-tooltip="One-time cost for gap insurance when financing. Cover differences between value and loan amount.">ⓘ</span>
+                  </div>
+                  <div class="form-field__control form-field__control--prefix">
+                    <span class="form-field__adornment">$</span>
+                    <input type="number" id="input-gap-insurance" class="input-text" value="0" min="0" step="100">
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </aside>
+
+      <!-- Results Panel (Right) -->
+      <main id="results-panel" class="results-panel">
+        <div class="results-panel__inner">
+          
+          <!-- Summary Cards Section -->
+          <section class="results-section">
+            <h2 class="sr-only">Summary Cards</h2>
+            
+            <!-- Fuel Type Toggle for display (filters view on mobile / highlights row) -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-4);">
+              <h3 style="font-size: var(--fs-md); text-transform: uppercase; letter-spacing: var(--ls-wide); color: var(--text-secondary);">Scenario Overview</h3>
+              <div style="display: flex; gap: var(--sp-2);">
+                <button id="btn-toggle-view-gas" class="btn-preset is-active" style="padding: var(--sp-1) var(--sp-3);">Gasoline</button>
+                <button id="btn-toggle-view-hybrid" class="btn-preset is-active" style="padding: var(--sp-1) var(--sp-3);">Hybrid</button>
+              </div>
+            </div>
+
+            <div id="summary-cards" class="summary-grid">
+              
+              <!-- 1. Cash Gasoline -->
+              <div id="card-cash-gas" class="card summary-card summary-card--cash fade-up stagger-1">
+                <div class="summary-card__header">
+                  <div class="summary-card__title">
+                    <span>Cash</span>
+                    <span class="badge badge--gas">Gas</span>
+                  </div>
+                  <div class="summary-card__badge" id="badge-cash-gas"></div>
+                </div>
+                <div class="summary-card__costs">
+                  <span id="cost-cash-gas" class="summary-card__total number-display">—</span>
+                  <span class="summary-card__monthly">Cash Purchase</span>
+                </div>
+                <div class="summary-card__detail">
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Upfront Outlay</span>
+                    <span id="upfront-cash-gas" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Opportunity Cost</span>
+                    <span id="opp-cash-gas" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">End Value (Equity)</span>
+                    <span id="equity-cash-gas" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Est. Fuel Cost</span>
+                    <span id="fuel-cash-gas" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Finance Gasoline -->
+              <div id="card-finance-gas" class="card summary-card summary-card--finance fade-up stagger-2">
+                <div class="summary-card__header">
+                  <div class="summary-card__title">
+                    <span>Finance</span>
+                    <span class="badge badge--gas">Gas</span>
+                  </div>
+                  <div class="summary-card__badge" id="badge-finance-gas"></div>
+                </div>
+                <div class="summary-card__costs">
+                  <span id="cost-finance-gas" class="summary-card__total number-display">—</span>
+                  <span id="monthly-finance-gas" class="summary-card__monthly number-display">—</span>
+                </div>
+                <div class="summary-card__detail">
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Upfront Outlay</span>
+                    <span id="upfront-finance-gas" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Interest Paid</span>
+                    <span id="interest-finance-gas" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">End Value (Equity)</span>
+                    <span id="equity-finance-gas" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Est. Fuel Cost</span>
+                    <span id="fuel-finance-gas" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. Lease Gasoline -->
+              <div id="card-lease-gas" class="card summary-card summary-card--lease fade-up stagger-3">
+                <div class="summary-card__header">
+                  <div class="summary-card__title">
+                    <span>Lease</span>
+                    <span class="badge badge--gas">Gas</span>
+                  </div>
+                  <div class="summary-card__badge" id="badge-lease-gas"></div>
+                </div>
+                <div class="summary-card__costs">
+                  <span id="cost-lease-gas" class="summary-card__total number-display">—</span>
+                  <span id="monthly-lease-gas" class="summary-card__monthly number-display">—</span>
+                </div>
+                <div class="summary-card__detail">
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Upfront Outlay</span>
+                    <span id="upfront-lease-gas" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Total Payments</span>
+                    <span id="total-pmts-lease-gas" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">End Value (Equity)</span>
+                    <span id="equity-lease-gas" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Est. Fuel Cost</span>
+                    <span id="fuel-lease-gas" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. Cash Hybrid -->
+              <div id="card-cash-hybrid" class="card summary-card summary-card--cash fade-up stagger-1">
+                <div class="summary-card__header">
+                  <div class="summary-card__title">
+                    <span>Cash</span>
+                    <span class="badge badge--hybrid">Hybrid</span>
+                  </div>
+                  <div class="summary-card__badge" id="badge-cash-hybrid"></div>
+                </div>
+                <div class="summary-card__costs">
+                  <span id="cost-cash-hybrid" class="summary-card__total number-display">—</span>
+                  <span class="summary-card__monthly">Cash Purchase</span>
+                </div>
+                <div class="summary-card__detail">
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Upfront Outlay</span>
+                    <span id="upfront-cash-hybrid" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Opportunity Cost</span>
+                    <span id="opp-cash-hybrid" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">End Value (Equity)</span>
+                    <span id="equity-cash-hybrid" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Est. Fuel Cost</span>
+                    <span id="fuel-cash-hybrid" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5. Finance Hybrid -->
+              <div id="card-finance-hybrid" class="card summary-card summary-card--finance fade-up stagger-2">
+                <div class="summary-card__header">
+                  <div class="summary-card__title">
+                    <span>Finance</span>
+                    <span class="badge badge--hybrid">Hybrid</span>
+                  </div>
+                  <div class="summary-card__badge" id="badge-finance-hybrid"></div>
+                </div>
+                <div class="summary-card__costs">
+                  <span id="cost-finance-hybrid" class="summary-card__total number-display">—</span>
+                  <span id="monthly-finance-hybrid" class="summary-card__monthly number-display">—</span>
+                </div>
+                <div class="summary-card__detail">
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Upfront Outlay</span>
+                    <span id="upfront-finance-hybrid" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Interest Paid</span>
+                    <span id="interest-finance-hybrid" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">End Value (Equity)</span>
+                    <span id="equity-finance-hybrid" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Est. Fuel Cost</span>
+                    <span id="fuel-finance-hybrid" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 6. Lease Hybrid -->
+              <div id="card-lease-hybrid" class="card summary-card summary-card--lease fade-up stagger-3">
+                <div class="summary-card__header">
+                  <div class="summary-card__title">
+                    <span>Lease</span>
+                    <span class="badge badge--hybrid">Hybrid</span>
+                  </div>
+                  <div class="summary-card__badge" id="badge-lease-hybrid"></div>
+                </div>
+                <div class="summary-card__costs">
+                  <span id="cost-lease-hybrid" class="summary-card__total number-display">—</span>
+                  <span id="monthly-lease-hybrid" class="summary-card__monthly number-display">—</span>
+                </div>
+                <div class="summary-card__detail">
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Upfront Outlay</span>
+                    <span id="upfront-lease-hybrid" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Total Payments</span>
+                    <span id="total-pmts-lease-hybrid" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">End Value (Equity)</span>
+                    <span id="equity-lease-hybrid" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                  <div class="summary-card__detail-item">
+                    <span class="summary-card__detail-label">Est. Fuel Cost</span>
+                    <span id="fuel-lease-hybrid" class="summary-card__detail-value number-display">—</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- Fuel Savings Spotlight -->
+          <section id="fuel-spotlight" class="results-section fuel-spotlight fade-up">
+            <div class="fuel-spotlight__header">
+              <div class="fuel-spotlight__icon">🍃</div>
+              <h3 class="fuel-spotlight__title">Hybrid Payback Analysis</h3>
+            </div>
+            <div class="fuel-spotlight__content">
+              <div class="fuel-spotlight__stats">
+                <div class="fuel-spotlight__stat-item">
+                  <span class="fuel-spotlight__stat-label">Annual Fuel Savings</span>
+                  <span id="spotlight-fuel-savings" class="fuel-spotlight__stat-value fuel-spotlight__stat-value--eco number-display">—</span>
+                </div>
+                <div class="fuel-spotlight__stat-item">
+                  <span class="fuel-spotlight__stat-label">Recoup Premium</span>
+                  <span id="spotlight-payback-months" class="fuel-spotlight__stat-value number-display">—</span>
+                </div>
+              </div>
+              <div class="fuel-spotlight__narrative">
+                <span id="spotlight-headline" class="fuel-spotlight__headline">Analyzing fuel economy...</span>
+                <p id="spotlight-desc" class="fuel-spotlight__description">Enter your mileage details to estimate how long it takes to break even.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Recommendation Engine Section -->
+          <section class="results-section fade-up">
+            <div id="recommendation" class="rec-card">
+              <div class="rec-card__header">
+                <div class="rec-card__icon">💡</div>
+                <h3 class="rec-card__title">Financial Recommendation</h3>
+              </div>
+              <div class="rec-card__sections">
+                <div class="rec-card__section">
+                  <h4 class="rec-card__section-title">Acquisition Strategy</h4>
+                  <p id="rec-acquisition-text" class="rec-card__text">Acquisition strategy recommendation details...</p>
+                </div>
+                <div class="rec-card__section">
+                  <h4 class="rec-card__section-title">Powertrain Analysis</h4>
+                  <p id="rec-fuel-text" class="rec-card__text">Gasoline vs. Hybrid recommendation details...</p>
+                </div>
+                <div class="rec-card__combined">
+                  <p id="rec-combined-text" class="rec-card__combined-text">Combined financial summary...</p>
+                  <ul id="rec-sensitivity-notes" class="rec-card__sensitivity-list">
+                    <!-- Dynamic bullet points -->
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Charts Section -->
+          <section id="charts-section" class="results-section">
+            <div style="margin-bottom: var(--sp-4);">
+              <h3 style="font-size: var(--fs-md); text-transform: uppercase; letter-spacing: var(--ls-wide); color: var(--text-secondary);">Visual Breakdowns</h3>
+            </div>
+            
+            <div class="charts-grid">
+              
+              <!-- Total Cost Bar Chart -->
+              <div class="chart-card chart-card--large fade-up">
+                <div class="chart-card__header">
+                  <h4 class="chart-card__title">Total Ownership Cost Comparison</h4>
+                </div>
+                <div class="chart-card__body">
+                  <canvas id="chart-total-cost"></canvas>
+                </div>
+              </div>
+
+              <!-- Equity Over Time Line Chart -->
+              <div class="chart-card fade-up">
+                <div class="chart-card__header">
+                  <h4 class="chart-card__title">Equity Trajectory Over Time</h4>
+                </div>
+                <div class="chart-card__body">
+                  <canvas id="chart-equity"></canvas>
+                </div>
+              </div>
+
+              <!-- Cash Flow Chart -->
+              <div class="chart-card fade-up">
+                <div class="chart-card__header">
+                  <h4 class="chart-card__title">Monthly Outflow Cash Flow</h4>
+                </div>
+                <div class="chart-card__body">
+                  <canvas id="chart-cashflow"></canvas>
+                </div>
+              </div>
+
+              <!-- Fuel Savings Breakeven Line Chart -->
+              <div class="chart-card fade-up">
+                <div class="chart-card__header">
+                  <h4 class="chart-card__title">Hybrid Payback Breakeven Timeline</h4>
+                </div>
+                <div class="chart-card__body">
+                  <canvas id="chart-fuel-breakeven"></canvas>
+                </div>
+              </div>
+
+              <!-- Mileage Sensitivity Chart -->
+              <div class="chart-card fade-up">
+                <div class="chart-card__header">
+                  <h4 class="chart-card__title">Mileage Sensitivity vs. Payback</h4>
+                </div>
+                <div class="chart-card__body">
+                  <canvas id="chart-mileage-sensitivity"></canvas>
+                </div>
+              </div>
+
+              <!-- Gasoline Cost Breakdown Donut -->
+              <div class="chart-card fade-up">
+                <div class="chart-card__header">
+                  <h4 class="chart-card__title">Gasoline Cost Breakdown</h4>
+                </div>
+                <div class="chart-card__body">
+                  <canvas id="chart-breakdown-gas"></canvas>
+                </div>
+              </div>
+
+              <!-- Hybrid Cost Breakdown Donut -->
+              <div class="chart-card fade-up">
+                <div class="chart-card__header">
+                  <h4 class="chart-card__title">Hybrid Cost Breakdown</h4>
+                </div>
+                <div class="chart-card__body">
+                  <canvas id="chart-breakdown-hybrid"></canvas>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- Detailed Comparison Table Section -->
+          <section class="results-section fade-up">
+            <div style="margin-bottom: var(--sp-4); display: flex; justify-content: space-between; align-items: center;">
+              <h3 style="font-size: var(--fs-md); text-transform: uppercase; letter-spacing: var(--ls-wide); color: var(--text-secondary);">Row-by-Row Comparison</h3>
+              <button id="btn-toggle-table-columns" class="btn-preset" style="padding: var(--sp-1) var(--sp-3);">Show Selected Fuel Only</button>
+            </div>
+            
+            <div class="table-container">
+              <table id="comparison-table" class="comp-table">
+                <thead>
+                  <tr>
+                    <th>Cost Category</th>
+                    <th class="th--cash">Cash (Gas)</th>
+                    <th class="th--cash">Cash (Hybrid)</th>
+                    <th class="th--finance">Finance (Gas)</th>
+                    <th class="th--finance">Finance (Hybrid)</th>
+                    <th class="th--lease">Lease (Gas)</th>
+                    <th class="th--lease">Lease (Hybrid)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Filled dynamically by results.js -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+        </div>
+      </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer__disclaimer">
+        Disclaimer: Calculations are based on mathematical models and financial estimates. Insurance rates, maintenance costs, and market depreciation values are subject to local fluctuations and individual credit profile terms.
+      </div>
+      <div class="footer__actions">
+        <button id="btn-share" class="btn-secondary">🔗 Copy Share Link</button>
+        <button id="btn-print" class="btn-secondary">🖨️ Print Report</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Application Logic -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

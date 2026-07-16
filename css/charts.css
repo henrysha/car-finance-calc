@@ -1,0 +1,105 @@
+/* ============================================
+   Car Acquisition Calculator — Chart Styles
+   ============================================ */
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--card-padding);
+  box-shadow: var(--shadow-medium);
+}
+
+.chart-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chart-card__title {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wide);
+}
+
+.chart-card__body {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9; /* default aspect ratio */
+  min-height: 240px;
+}
+
+@media (max-width: 639px) {
+  .chart-card__body {
+    aspect-ratio: 4 / 3;
+    min-height: 200px;
+  }
+}
+
+/* Specific aspect ratios for charts */
+.chart-card--large .chart-card__body {
+  aspect-ratio: 21 / 9;
+}
+
+@media (max-width: 1023px) {
+  .chart-card--large .chart-card__body {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+.chart-card__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.chart-card__legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.chart-card__legend-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Color Legend Helpers */
+.chart-card__legend-color--cash { background-color: var(--cash-500); }
+.chart-card__legend-color--finance { background-color: var(--finance-500); }
+.chart-card__legend-color--lease { background-color: var(--lease-500); }
+.chart-card__legend-color--gas { background-color: var(--gas-500); }
+.chart-card__legend-color--hybrid { background-color: var(--hybrid-500); }
+
+/* Custom canvas positioning to avoid overflow issues */
+.chart-card canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Print Specifics for Charts */
+@media print {
+  .chart-card {
+    background: none !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    margin-bottom: 20px;
+  }
+
+  .chart-card__title {
+    color: #000 !important;
+  }
+
+  .chart-card__body {
+    aspect-ratio: 16 / 9 !important;
+  }
+}

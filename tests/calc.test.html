@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator Unit Tests</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #0f172a;
+      color: #cbd5e1;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #f8fafc;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 12px;
+    }
+    .test-case {
+      padding: 12px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #1e293b;
+    }
+    .pass {
+      border-left: 5px solid #10b981;
+    }
+    .fail {
+      border-left: 5px solid #ef4444;
+      background-color: #451a1a;
+    }
+    .status {
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .status-pass {
+      color: #10b981;
+      background-color: rgba(16, 185, 129, 0.1);
+    }
+    .status-fail {
+      color: #ef4444;
+      background-color: rgba(239, 68, 68, 0.1);
+    }
+    .output {
+      font-size: 0.85em;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Car Acquisition Calculator — Unit Tests</h1>
+  <div id="test-results">Running tests...</div>
+
+  <script type="module">
+    import { getVehicleValue, getDepreciationSchedule } from '../js/calc/depreciation.js';
+    import { calculateCash } from '../js/calc/cash.js';
+    import { calculateFinance } from '../js/calc/finance.js';
+    import { calculateLease } from '../js/calc/lease.js';
+    import {
+      calcAnnualFuelCost,
+      calcAnnualFuelSavings,
+      calcBreakevenMonths,
+      calcMileageSensitivity,
+    } from '../js/calc/fuel.js';
+
+    const resultsContainer = document.getElementById("test-results");
+    resultsContainer.innerHTML = "";
+
+    let passedCount = 0;
+    let failedCount = 0;
+
+    function assert(name, condition, details = "") {
+      const caseDiv = document.createElement("div");
+      caseDiv.className = `test-case ${condition ? "pass" : "fail"}`;
+      
+      const textDiv = document.createElement("div");
+      textDiv.innerHTML = `<strong>${name}</strong><div class="output">${details}</div>`;
+      caseDiv.appendChild(textDiv);
+
+      const statusSpan = document.createElement("span");
+      statusSpan.className = `status ${condition ? "status-pass" : "status-fail"}`;
+      statusSpan.textContent = condition ? "PASS" : "FAIL";
+      caseDiv.appendChild(statusSpan);
+
+      resultsContainer.appendChild(caseDiv);
+
+      if (condition) passedCount++;
+      else failedCount++;
+    }
+
+    try {
+      // 1. Depreciation Tests
+      const valNew = getVehicleValue(30000, 12, true, 0, false);
+      const expectedNew = 30000 * 0.8; // 20% Y1 depreciation
+      assert("New car year-1 depreciation", Math.abs(valNew - expectedNew) < 1e-2, `Expected: $${expectedNew}, Got: $${valNew.toFixed(2)}`);
+
+      const valHybrid = getVehicleValue(30000, 12, true, 0, true);
+      const expectedHybrid = 30000 * 0.82; // 18% Y1 depreciation (2% hybrid retention adjustment)
+      assert("Hybrid car year-1 depreciation", Math.abs(valHybrid - expectedHybrid) < 1e-2, `Expected: $${expectedHybrid}, Got: $${valHybrid.toFixed(2)}`);
+
+      const schedule = getDepreciationSchedule(30000, 12, true, 0, false);
+      assert("Depreciation schedule length", schedule.length === 13, `Expected schedule length 13 (month 0 to 12), Got: ${schedule.length}`);
+
+      // 2. Fuel Tests
+      const annualFuelCost = calcAnnualFuelCost(12000, 24, 3.50);
+      const expectedFuelCost = (12000 / 24) * 3.50; // $1,750
+      assert("Annual fuel cost calculation", annualFuelCost === expectedFuelCost, `Expected: $${expectedFuelCost}, Got: $${annualFuelCost}`);
+
+      const annualSavings = calcAnnualFuelSavings(12000, 20, 30, 3.50);
+      const expectedSavings = ((12000 / 20) * 3.50) - ((12000 / 30) * 3.50); // 2100 - 1400 = 700
+      assert("Annual fuel savings", annualSavings === expectedSavings, `Expected: $${expectedSavings}, Got: $${annualSavings}`);
+
+      const payback = calcBreakevenMonths(2100, 700);
+      const expectedPayback = (2100 / 700) * 12; // 36 months
+      assert("Breakeven timeline payback", payback === expectedPayback, `Expected: ${expectedPayback} months, Got: ${payback}`);
+
+      const paybackInf = calcBreakevenMonths(2000, -50);
+      assert("Negative savings payback is Infinity", paybackInf === Infinity, `Expected: Infinity, Got: ${paybackInf}`);
+
+      // 3. Cash Calculator Tests
+      const cashRes = calculateCash({
+        vehiclePrice: 30000,
+        taxRate: 0.07,
+        fees: 500,
+        annualInsurance: 1200,
+        annualMaintenance: 400,
+        annualFuelCost: 1500,
+        opportunityRate: 0.05,
+        comparisonMonths: 60,
+        isNew: true,
+        isHybrid: false
+      });
+      // Upfront outlay = 30000 + 2100 tax + 500 fees = 32600
+      assert("Cash upfront outlay", cashRes.upfrontCost === 32600, `Expected: $32,600, Got: $${cashRes.upfrontCost}`);
+      assert("Cash opportunity cost calculated", cashRes.opportunityCost > 0, `Got: $${cashRes.opportunityCost}`);
+
+      // 4. Finance Amortization Tests
+      const finRes = calculateFinance({
+        vehiclePrice: 30000,
+        downPayment: 5000,
+        tradeIn: 0,
+        apr: 0.06,
+        termMonths: 60,
+        taxRate: 0.07,
+        fees: 500,
+        annualInsurance: 1200,
+        annualMaintenance: 400,
+        annualFuelCost: 1500,
+        opportunityRate: 0.05,
+        comparisonMonths: 60,
+        isNew: true
+      });
+      // Loan amount = 30000 + 2100 tax + 500 fees - 5000 down = 27600
+      // Monthly payment for 27600 at 6% APR over 60 mo is $533.59
+      assert("Finance monthly payment check", Math.abs(finRes.monthlyPayment - 533.59) < 0.50, `Expected close to $533.59, Got: $${finRes.monthlyPayment}`);
+      assert("Finance loan payoff occurs", finRes.payoffMonth === 60, `Expected: Month 60 payoff, Got: ${finRes.payoffMonth}`);
+
+      // 5. Lease Calculator Tests
+      const leaseRes = calculateLease({
+        vehiclePrice: 30000,
+        downPayment: 3000,
+        monthlyPayment: 350,
+        leaseTerm: 36,
+        residualPercent: 0.55,
+        moneyFactor: 0.002,
+        mileageAllowance: 12000,
+        excessMileageRate: 0.25,
+        expectedAnnualMiles: 14000, // 2000 excess per year
+        acquisitionFee: 800,
+        dispositionFee: 350,
+        buyAtEnd: false,
+        taxRate: 0.07,
+        annualInsurance: 1200,
+        annualMaintenance: 400,
+        annualFuelCost: 1500,
+        opportunityRate: 0.05,
+        comparisonMonths: 60 // Requires 2 sequential leases
+      });
+      assert("Lease excess mileage cost", leaseRes.excessMileageCost === 2500, `2000 mi * $0.25 * 5 yrs = $2500, Got: $${leaseRes.excessMileageCost}`);
+      assert("Lease sequential leases count", leaseRes.numberOfLeases === 2, `Expected 2 leases for 60 month period, Got: ${leaseRes.numberOfLeases}`);
+
+      // Final stats header
+      const summaryDiv = document.createElement("div");
+      summaryDiv.style.marginTop = "30px";
+      summaryDiv.style.padding = "16px";
+      summaryDiv.style.borderRadius = "8px";
+      summaryDiv.style.backgroundColor = failedCount > 0 ? "rgba(239, 68, 68, 0.15)" : "rgba(16, 185, 129, 0.15)";
+      summaryDiv.style.border = `1px solid ${failedCount > 0 ? "#ef4444" : "#10b981"}`;
+      summaryDiv.innerHTML = `<strong>Test Session Completed:</strong> ${passedCount} passed, ${failedCount} failed.`;
+      resultsContainer.prepend(summaryDiv);
+
+    } catch (e) {
+      assert("Test Framework Crash Error", false, e.toString());
+    }
+  </script>
+</body>
+</html>

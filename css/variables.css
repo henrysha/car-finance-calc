@@ -1,0 +1,257 @@
+/* ============================================
+   Car Acquisition Calculator — Design Tokens
+   ============================================ */
+
+:root {
+  /* —— Color: Backgrounds ——————————————— */
+  --bg-deepest: #0a0a0f;
+  --bg-deep: #12121a;
+  --bg-base: #1a1a2e;
+  --bg-surface: #1e1e2e;
+  --bg-surface-alt: #252540;
+  --bg-elevated: #2a2a45;
+  --bg-hover: #30304d;
+
+  /* —— Color: Text ————————————————————— */
+  --text-primary: #e8e8f0;
+  --text-secondary: #b0b0c8;
+  --text-muted: #8888a0;
+  --text-disabled: #555570;
+  --text-inverse: #0a0a0f;
+
+  /* —— Color: Method — Cash (Emerald) ——— */
+  --cash-50: #ecfdf5;
+  --cash-100: #d1fae5;
+  --cash-200: #a7f3d0;
+  --cash-300: #6ee7b7;
+  --cash-400: #34d399;
+  --cash-500: #10b981;
+  --cash-600: #059669;
+  --cash-700: #047857;
+  --cash-800: #065f46;
+  --cash-900: #064e3b;
+  --cash-glow: rgba(16, 185, 129, 0.25);
+
+  /* —— Color: Method — Finance (Blue) ——— */
+  --finance-50: #eff6ff;
+  --finance-100: #dbeafe;
+  --finance-200: #bfdbfe;
+  --finance-300: #93c5fd;
+  --finance-400: #60a5fa;
+  --finance-500: #3b82f6;
+  --finance-600: #2563eb;
+  --finance-700: #1d4ed8;
+  --finance-800: #1e40af;
+  --finance-900: #1e3a8a;
+  --finance-glow: rgba(59, 130, 246, 0.25);
+
+  /* —— Color: Method — Lease (Amber) ———— */
+  --lease-50: #fffbeb;
+  --lease-100: #fef3c7;
+  --lease-200: #fde68a;
+  --lease-300: #fcd34d;
+  --lease-400: #fbbf24;
+  --lease-500: #f59e0b;
+  --lease-600: #d97706;
+  --lease-700: #b45309;
+  --lease-800: #92400e;
+  --lease-900: #78350f;
+  --lease-glow: rgba(245, 158, 11, 0.25);
+
+  /* —— Color: Fuel — Gasoline ——————————— */
+  --gas-50: #fef2f2;
+  --gas-100: #fee2e2;
+  --gas-200: #fecaca;
+  --gas-300: #fca5a5;
+  --gas-400: #f87171;
+  --gas-500: #ef4444;
+  --gas-600: #dc2626;
+  --gas-700: #b91c1c;
+  --gas-subtle: rgba(239, 68, 68, 0.12);
+  --gas-text: #fca5a5;
+
+  /* —— Color: Fuel — Hybrid ———————————— */
+  --hybrid-50: #f0fdf4;
+  --hybrid-100: #dcfce7;
+  --hybrid-200: #bbf7d0;
+  --hybrid-300: #86efac;
+  --hybrid-400: #4ade80;
+  --hybrid-500: #22c55e;
+  --hybrid-600: #16a34a;
+  --hybrid-700: #15803d;
+  --hybrid-subtle: rgba(34, 197, 94, 0.12);
+  --hybrid-text: #86efac;
+
+  /* —— Color: Accent / CTA (Purple) ———— */
+  --accent-50: #f5f3ff;
+  --accent-100: #ede9fe;
+  --accent-200: #ddd6fe;
+  --accent-300: #c4b5fd;
+  --accent-400: #a78bfa;
+  --accent-500: #8b5cf6;
+  --accent-600: #7c3aed;
+  --accent-700: #6d28d9;
+  --accent-800: #5b21b6;
+  --accent-900: #4c1d95;
+  --accent-glow: rgba(139, 92, 246, 0.3);
+
+  /* —— Color: Semantic ————————————————— */
+  --success: #10b981;
+  --success-subtle: rgba(16, 185, 129, 0.12);
+  --warning: #f59e0b;
+  --warning-subtle: rgba(245, 158, 11, 0.12);
+  --error: #ef4444;
+  --error-subtle: rgba(239, 68, 68, 0.12);
+  --info: #3b82f6;
+  --info-subtle: rgba(59, 130, 246, 0.12);
+
+  /* —— Color: Borders ————————————————— */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-focus: var(--accent-500);
+
+  /* —— Color: Glass ——————————————————— */
+  --glass-bg: rgba(30, 30, 46, 0.6);
+  --glass-bg-hover: rgba(37, 37, 64, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 12px;
+
+  /* —— Typography ————————————————————— */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --fs-xs: 0.75rem;    /* 12px */
+  --fs-sm: 0.875rem;   /* 14px */
+  --fs-base: 1rem;     /* 16px */
+  --fs-md: 1.125rem;   /* 18px */
+  --fs-lg: 1.25rem;    /* 20px */
+  --fs-xl: 1.5rem;     /* 24px */
+  --fs-2xl: 2rem;      /* 32px */
+  --fs-3xl: 2.5rem;    /* 40px */
+  --fs-4xl: 3rem;      /* 48px */
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  --lh-tight: 1.2;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.7;
+
+  --ls-tight: -0.02em;
+  --ls-normal: 0;
+  --ls-wide: 0.02em;
+  --ls-wider: 0.05em;
+
+  /* —— Spacing ———————————————————————— */
+  --sp-1: 0.25rem;   /*  4px */
+  --sp-2: 0.5rem;    /*  8px */
+  --sp-3: 0.75rem;   /* 12px */
+  --sp-4: 1rem;      /* 16px */
+  --sp-5: 1.25rem;   /* 20px */
+  --sp-6: 1.5rem;    /* 24px */
+  --sp-8: 2rem;      /* 32px */
+  --sp-10: 2.5rem;   /* 40px */
+  --sp-12: 3rem;     /* 48px */
+  --sp-16: 4rem;     /* 64px */
+
+  /* —— Border Radius ————————————————— */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* —— Shadows ———————————————————————— */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.3),
+                   0 1px 3px rgba(0, 0, 0, 0.15);
+  --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.3),
+                   0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-strong: 0 10px 25px rgba(0, 0, 0, 0.4),
+                   0 6px 10px rgba(0, 0, 0, 0.25);
+  --shadow-glow-cash: 0 0 20px var(--cash-glow),
+                      0 0 40px rgba(16, 185, 129, 0.1);
+  --shadow-glow-finance: 0 0 20px var(--finance-glow),
+                         0 0 40px rgba(59, 130, 246, 0.1);
+  --shadow-glow-lease: 0 0 20px var(--lease-glow),
+                       0 0 40px rgba(245, 158, 11, 0.1);
+  --shadow-glow-accent: 0 0 20px var(--accent-glow),
+                        0 0 40px rgba(139, 92, 246, 0.1);
+
+  /* —— Transitions ——————————————————— */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --transition-fast: 150ms var(--ease-out);
+  --transition-normal: 250ms var(--ease-out);
+  --transition-slow: 400ms var(--ease-out);
+  --transition-theme: 300ms var(--ease-in-out);
+
+  /* —— Z-Index ———————————————————————— */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 300;
+  --z-tooltip: 400;
+
+  /* —— Component-Specific ————————————— */
+  --input-height: 44px;
+  --input-padding: var(--sp-3) var(--sp-4);
+  --card-padding: var(--sp-6);
+  --header-height: 72px;
+  --sidebar-width: 420px;
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+[data-theme='light'] {
+  /* Backgrounds */
+  --bg-deepest: #f0f0f5;
+  --bg-deep: #f5f5fa;
+  --bg-base: #fafaff;
+  --bg-surface: #ffffff;
+  --bg-surface-alt: #f0f0f8;
+  --bg-elevated: #ffffff;
+  --bg-hover: #e8e8f0;
+
+  /* Text */
+  --text-primary: #1a1a2e;
+  --text-secondary: #44445a;
+  --text-muted: #6b6b85;
+  --text-disabled: #a0a0b8;
+  --text-inverse: #e8e8f0;
+
+  /* Borders */
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-default: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.18);
+
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg-hover: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.08);
+
+  /* Shadows */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.06),
+                   0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.07),
+                   0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-strong: 0 10px 25px rgba(0, 0, 0, 0.1),
+                   0 6px 10px rgba(0, 0, 0, 0.06);
+
+  /* Gas subtle */
+  --gas-subtle: rgba(239, 68, 68, 0.08);
+  --gas-text: #dc2626;
+
+  /* Hybrid subtle */
+  --hybrid-subtle: rgba(34, 197, 94, 0.08);
+  --hybrid-text: #16a34a;
+
+  /* Semantic subtle */
+  --success-subtle: rgba(16, 185, 129, 0.08);
+  --warning-subtle: rgba(245, 158, 11, 0.08);
+  --error-subtle: rgba(239, 68, 68, 0.08);
+  --info-subtle: rgba(59, 130, 246, 0.08);
+}
