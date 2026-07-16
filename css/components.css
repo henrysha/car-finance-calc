@@ -254,7 +254,7 @@
   box-shadow: var(--shadow-subtle);
 }
 
-.segmented-control__option:last-child .segmented-control__input:checked ~ .segmented-control__bg {
+.segmented-control__option:last-child:has(.segmented-control__input:checked) ~ .segmented-control__bg {
   transform: translateX(100%);
 }
 
